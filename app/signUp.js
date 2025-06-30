@@ -1,4 +1,4 @@
-import { View, Text, Image, TextInput, TouchableOpacity, Pressable, Alert } from 'react-native'
+import { View, Text, Image, TextInput, TouchableOpacity, Pressable, Alert, Button} from 'react-native'
 import React, { useRef, useState } from 'react'
 import {widthPercentageToDP as wp, heightPercentageToDP as hp} from 'react-native-responsive-screen';
 import { StatusBar } from 'expo-status-bar';
@@ -7,6 +7,7 @@ import { useRouter } from 'expo-router';
 import Loading from '../components/Loading';
 import CustomKeyboardView from '../components/CustomKeyboardView';
 import { useAuth } from '../context/authContext';
+import * as ImagePicker from 'expo-image-picker';
 
 export default function SignUp() {
     const router = useRouter();
@@ -31,6 +32,21 @@ export default function SignUp() {
         console.log('got result: ', response);
         if(!response.success){
             Alert.alert('Sign Up', response.msg);
+        }
+    }
+
+    const [image, setImage] = useState(null);
+
+    const pickImage = async () => {
+        let result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ['images'],
+        allowsEditing: true,
+        aspect: [4, 3],
+        quality: 1,
+        })
+
+        if (!result.canceled) {
+        setImage(result.assets[0].uri);
         }
     }
   return (
@@ -80,17 +96,19 @@ export default function SignUp() {
                     />
                 </View>
 
-                <View style={{height: hp(7)}} className="flex-row gap-4 px-4 bg-neutral-100 items-center rounded-xl">
-                    <Feather name="image" size={hp(2.7)} color="gray" />
-                    <TextInput
-                        onChangeText={value=> profileRef.current=value}
-                        style={{fontSize: hp(2)}}
-                        className="flex-1 font-semibold text-neutral-700"
-                        placeholder='Profile url'
-                        placeholderTextColor={'gray'}
-                    />
+                <View style={{height: hp(16)}} className="bg-neutral-100 items-center rounded-xl justify-center">
+                    {image ? (
+                        <Image 
+                            source={{uri: image}} 
+                            className="h-full w-full rounded-xl"
+                            resizeMode="contain"
+                        />
+                    ) : (
+                        <View className="flex-1 items-center">
+                            <Button title="Escolha uma imagem" onPress={pickImage} />
+                        </View>
+                    )}
                 </View>
-                    
 
                 {/* submit button */}
 
